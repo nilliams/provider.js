@@ -1,19 +1,9 @@
 Provider.js
 ===========
 
-Simple Dependency Injection for Backbone.js or Vanilla JavaScript
-----------------------------------------------------------
+Simple Dependency Injection for Backbone.js or vanilla JavaScript
 
 > WARNING: This is new, something of a learning exercise, and aimed at a specific use-case I had with a largely vanilla JS system. I have not explored all Backbone use-cases thoroughly. Simply put, this may be a terrible idea.
-
-TODO:
-
- - Scoping/namespacing of providers
-
-Jump ahead:
-
- - Standalone Usage (for Vanilla JS)
- - Backbone.js Usage
 
 ## Standalone Usage 
 
@@ -37,7 +27,7 @@ Use `Provider.Object` to define objects with a Backbone-like `extend/initialize`
         // The '$http' *service* is injected as a provider for '$http' exists
       }
 
-Here's a trivial example in full, where I provide a simple string value, to cement the idea.
+Here's a trivial example in full, providing a simple string value:
 
     Provider.provide('$foo', function() {
       return ENV_TEST ? 'Yehuda!' : 'World!';    
@@ -115,24 +105,3 @@ Why would I do this?
  * Keep your object construction code out of your main business logic, i.e. not inside your actual Views, Models or Collections.
  * Combined with Polymorphism, this can push a lot of conditional logic out of your business logic and into your factories/providers.
  * And (similarly) the NullObject pattern - eliminate null-checks from your business logic, e.g. simply inject one of `User` or `Guest` and call the same methods on both, rather than checking `isLoggedIn` all over the place.
-
-Rephrase, this keeps your Views, Models & Collections:  
-
- * free of object construction code (i.e. no `new`-ing of objects)
- * free from being tied to any particular implementation of the injected service/object. e.g. rather than a `View` needing to know how to create a `$dialog` or `$spinner`, it just gets handed one that works.
-
-Pondering
----------
-
-Scopes? Like `$modelScope`?
-
-Good Example?
-
-
-    Provider.provide($dialog, function() {
-	  if ( ENV_TEST ) {
-        // Setup a dialog without animations
-	  }
-
-	  // Setup a dialog with animations
-    }); 

@@ -85,10 +85,9 @@
 	function depsFromArgs(context, args) {
 		var paramNames = context.initialize.$inject;
 
-		// A-HA. That's why this was broken
-		// The forEach is on paramNames
-		// so if paramNames.length = 0  but there *are* passed in arguments, those args aren't returned/applied
-		if ( paramNames.length < args.length ) return Array.prototype.slice.apply( args );
+		// If `extend` hasn't been called (no injection)
+		// or more arguments have been passed in than the injectables, just pass them right through
+		if ( !paramNames || paramNames.length < args.length ) return Array.prototype.slice.apply( args );
 
 		// `options` is magic. if it is anywhere in paramNames, it will get passed to the provider fn call
 		var optsPosition = paramNames.indexOf('options');
@@ -153,11 +152,51 @@
 		// Monkey-patch `extend()`
 		Backbone.Model.extend = function(protoProps, staticProps) {
 			annotate(protoProps.initialize);
-
 			return ModelConstructor.extend.call(this, protoProps, staticProps);
 		};
-	}
 
+		///////
+
+		// Save a reference to the constructor.
+		var ViewConstructor = Backbone.View;
+
+		Backbone.View = function(options) {
+			var argsPlusInjectedArgs = depsFromArgs(this, arguments);
+
+			// Act like nothing happened, eh tbranyen.
+			ViewConstructor.apply(this, argsPlusInjectedArgs);
+		};
+
+		// Copy over the prototype as well.
+		Backbone.View.prototype = ViewConstructor.prototype;
+
+		// Monkey-patch `extend()`
+		Backbone.View.extend = function(protoProps, staticProps) {
+			annotate(protoProps.initialize);
+			return ViewConstructor.extend.call(this, protoProps, staticProps);
+		};
+
+		/////////
+
+		var CollectionConstructor = Backbone.Collection;
+
+		Backbone.Collection = function(options) {
+			var argsPlusInjectedArgs = depsFromArgs(this, arguments);
+
+			// Act like nothing happened, eh tbranyen.
+			CollectionConstructor.apply(this, argsPlusInjectedArgs);
+		};
+
+		// Copy over the prototype as well.
+		Backbone.Collection.prototype = CollectionConstructor.prototype;
+
+		// Monkey-patch `extend()`
+		Backbone.Collection.extend = function(protoProps, staticProps) {
+			annotate(protoProps.initialize);
+			return CollectionConstructor.extend.call(this, protoProps, staticProps);
+		};
+
+	}
 
 	Provider.Widget = Widget;
 	Provider.infect = infect;

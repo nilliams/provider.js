@@ -1,33 +1,61 @@
 Provider.js
 ===========
 
-Dependency Injection for Backbone.js or Vanilla JavaScript
+Simple Dependency Injection for Backbone.js or Vanilla JavaScript
 ----------------------------------------------------------
 
 > WARNING: This is new, something of a learning exercise, and aimed at a specific use-case I had with a largely vanilla JS system. I have not explored all Backbone use-cases thoroughly. Simply put, this may be a terrible idea.
 
+TODO:
+
+ - Scoping/namespacing of providers
+
 Jump ahead:
 
- - Standalone (for Vanilla JS)
- - Backbone
+ - Standalone Usage (for Vanilla JS)
+ - Backbone.js Usage
 
 ## Standalone Usage 
 
-Provider.Object has a Backbone-like `extend/initialize` syntax for constructing objects:
+Define a provider like so:
 
-    var MyObject = Provider.Object.extend({
-      initialize: function($http) {
-        // The `$http` *service* is injected, if a provider exists.
-      }
-    }); 
-
-Where the definition of how `$http` should be injected is defined with a provider:
-
+    // Define a provider called `$http`
     Provider.provide('$http', function() {
       return SOME_CONDITION ? $.ajax : $.mockjax;
     });
 
-### The options parameter
+Use `Provider.Object` to define objects with a Backbone-like `extend/initialize` syntax...
+
+    var MyObject = Provider.Object.extend({
+      initialize: function() { /* constructor */ }
+    });
+
+... with the added bonus that parameters of the constructor function (`initialize`), will be injected if their name matches that of a defined provider. 
+
+      ...
+      initialize: function($http) {
+        // The '$http' *service* is injected as a provider for '$http' exists
+      }
+
+Here's a trivial example in full, where I provide a simple string value, to cement the idea.
+
+    Provider.provide('$foo', function() {
+      return ENV_TEST ? 'Yehuda!' : 'World!';    
+    });
+
+    var Widget = Provider.Object.extend({
+      initialize: function($foo) {
+        console.log('Hello', $foo);
+      });
+    });
+
+    ENV_TEST = true;
+    var w1 = new Widget();  // prints 'Hello Yehuda!'
+
+    ENV_TEST = false;
+    var w2 = new Widget();  // prints 'Hello World!'
+
+### The `options` parameter
 
 If you use an `options` parameter (yes the name is magic) in your constructor, that same `options` object will be passed to your provider when your object is instantiated.
 
@@ -78,18 +106,20 @@ You can override any injectable parameter when you instantiate your objects. Thi
 
 Your provider can return object instances (to act like a factory), references (i.e. `$.ajax` vs `$.mockjax`), or values. Whatever you want to inject.
 
+### Why?
+
 Why would I do this?
 
- * Keep your object construction code out of your main business logic, i.e. not inside your actual Views, Models or Collections.
  * Allows easy substitution of dependencies in testing.
- * Dependencies are made explicit in the constructor, useful in testing.
- * Often eases polymorphism.
- * And (similarly) the NullObject pattern - eliminate null-checks from your business logic, e.g. simply inject one of `User` or `Guest` rather than repeatedly checking `isLoggedIn`.
+ * Dependencies are made explicit in the constructor.
+ * Keep your object construction code out of your main business logic, i.e. not inside your actual Views, Models or Collections.
+ * Combined with Polymorphism, this can push a lot of conditional logic out of your business logic and into your factories/providers.
+ * And (similarly) the NullObject pattern - eliminate null-checks from your business logic, e.g. simply inject one of `User` or `Guest` and call the same methods on both, rather than checking `isLoggedIn` all over the place.
 
 Rephrase, this keeps your Views, Models & Collections:  
 
  * free of object construction code (i.e. no `new`-ing of objects)
- * free from being tied to any particular implementation of the injected service/object. e.g. should a `View` need to know how to create a `$dialog` or `$spinner`. No, it just gets handed one that works.
+ * free from being tied to any particular implementation of the injected service/object. e.g. rather than a `View` needing to know how to create a `$dialog` or `$spinner`, it just gets handed one that works.
 
 Pondering
 ---------

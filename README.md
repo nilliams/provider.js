@@ -65,7 +65,7 @@ var MyObject = Provider.Object.extend({
   }
 });
 
-// The provider can use `options` to help make it's mind up
+// The provider can use `options` to help make its mind up
 Provider.provider('$http', function(options) {
   return ( options.foo ) ? $.foojax : $.ajax;
 });
@@ -84,7 +84,6 @@ var MyModel = Backbone.Model.extend({
 
   // The parameters named here will be looked up by name
   initialize: function(attrs, options, $http) {
-    
     // The `$http` *service* is injected, if a provider exists.
   });
 });

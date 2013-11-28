@@ -20,7 +20,7 @@
 	Widget.extend = function(protoProps, staticProps) {
 		annotate( protoProps.initialize );
 		return extend.call( this, protoProps, staticProps );
-	}
+	};
 
 	// Provider
 	// --------
@@ -146,12 +146,12 @@
 	};
 
 	var _extend = function(obj) {
-	  Array.prototype.slice.call(arguments, 1).forEach(function(source) {
-	    if ( source ) {
-	      for ( var prop in source ) { obj[prop] = source[prop]; }
-	    }
-	  });
-	  return obj;
+		Array.prototype.slice.call(arguments, 1).forEach(function(source) {
+			if ( source ) {
+				for ( var prop in source ) { obj[prop] = source[prop]; }
+			}
+		});
+		return obj;
 	};
 
 	// Adapted version of `annotate()` from Angular.js. License:
@@ -165,35 +165,34 @@
 	var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
 	var annotate = function(fn) {
-	  if ( typeof fn !== 'function' ) return;
-	  if ( fn.$inject ) return fn.$inject;
+		if ( typeof fn !== 'function' ) return;
+		if ( fn.$inject ) return fn.$inject;
 
-	  var fnText  = fn.toString().replace(STRIP_COMMENTS, '');
-	  var argDecl = fnText.match(FN_ARGS);
+		var fnText  = fn.toString().replace(STRIP_COMMENTS, '');
+		var argDecl = fnText.match(FN_ARGS);
 
-	  var $inject = [];
-	  argDecl[1].split(FN_ARG_SPLIT).forEach(function(arg) {
-	    arg.replace( FN_ARG, function(all, underscore, name) {
-	      $inject.push(name);
-	    });
-	  });
+		var $inject = [];
+		argDecl[1].split(FN_ARG_SPLIT).forEach(function(arg) {
+			arg.replace( FN_ARG, function(all, underscore, name) {
+				$inject.push(name);
+			});
+		});
 
-	  fn.$inject = $inject;
-	  return $inject;
+		fn.$inject = $inject;
+		return $inject;
 	};
 
-
 	// AMD / RequireJS
-  if ( typeof define !== 'undefined' && define.amd ) {
-    define([], function() { return Provider; });
-  }
-  // Node.js
-  else if ( typeof module !== 'undefined' && module.exports ) {
-    module.exports = Provider;
-  }
-  // included directly via <script> tag
-  else {
-    root.Provider = Provider;
-  }
+	if ( typeof define !== 'undefined' && define.amd ) {
+		define([], function() { return Provider; });
+	}
+	// Node.js
+	else if ( typeof module !== 'undefined' && module.exports ) {
+		module.exports = Provider;
+	}
+	// included directly via <script> tag
+	else {
+		root.Provider = Provider;
+	}
 
 }());

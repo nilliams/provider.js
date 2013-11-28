@@ -75,7 +75,7 @@ Allows you to define injectables in your Backbone Views, Models or Collections, 
       initialize: function(attrs, options, $http) {
         
         // The `$http` *service* is injected, if a provider exists.
-	  });
+      });
     });
 
 Where the definition of how `$http` should be injected is defined with a provider:

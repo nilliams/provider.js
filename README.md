@@ -9,7 +9,7 @@ Simple Dependency Injection for Backbone.js or vanilla JavaScript
 
 Define a provider like so:
 
-```javascript
+```js
 // Define a provider called `$http`
 Provider.provide('$http', function() {
   return SOME_CONDITION ? $.ajax : $.mockjax;
@@ -18,7 +18,7 @@ Provider.provide('$http', function() {
 
 Use `Provider.Object` to define objects with a Backbone-like `extend/initialize` syntax...
 
-```javascript
+```js
 var MyObject = Provider.Object.extend({
   initialize: function() { /* constructor */ }
 });
@@ -26,7 +26,7 @@ var MyObject = Provider.Object.extend({
 
 Parameters of the constructor function (`initialize`), will be injected if their name matches that of a defined provider. 
 
-```javascript
+```js
 ...
 initialize: function($http) {
   // The '$http' *service* is injected as a provider for '$http' exists
@@ -35,7 +35,7 @@ initialize: function($http) {
 
 Here's a trivial example in full, providing a simple string value:
 
-```javascript
+```js
 Provider.provide('$foo', function() {
   return ENV_TEST ? 'Yehuda!' : 'World!';    
 });
@@ -53,11 +53,13 @@ ENV_TEST = false;
 var w2 = new Widget();  // prints 'Hello World!'
 ```
 
+> NOTE: Prefixing your *injectable* parameters with `$` symbols (like `$http`, `$myservice` etc. is ***not*** required, it's just a suggested convention borrowed from Angular. 
+
 ### The `options` parameter
 
 If you use an `options` parameter (yes the name is magic) in your constructor, that same `options` object will be passed to your provider when your object is instantiated.
 
-```javascript
+```js
 var MyObject = Provider.Object.extend({
   initialize: function(options, $http) {
     // See that options ^^^ param - the use of that name here is magic
@@ -77,11 +79,16 @@ I've no idea if this is a good idea generally (I had a use-case in mind).
 
 ## Provider + Backbone
 
-Allows you to define injectables in your Backbone Views, Models or Collections, right in the constructor function, for example.
+Call `infect` to add Provider functionality into the `View`, `Model` and `Collection` base-classes (you only need to do this once):
 
-```javascript
+```js
+Provider.infect();
+```
+
+You can define injectables in your Backbone Views, Models or Collections, right in the constructor function:
+
+```js
 var MyModel = Backbone.Model.extend({
-
   // The parameters named here will be looked up by name
   initialize: function(attrs, options, $http) {
     // The `$http` *service* is injected, if a provider exists.
@@ -91,17 +98,15 @@ var MyModel = Backbone.Model.extend({
 
 Where the definition of how `$http` should be injected is defined with a provider:
 
-```javascript
+```js
 Provider.provide('$http', function() {
   return SOME_CONDITION ? $.ajax : $.mockjax;
 });
 ```
 
-Note that prefixing your *injectable* parameters with `$` symbols (like `$http`, `$myservice` etc. is ***not*** required, it's just a suggested convention borrowed from Angular. In the above example, creating a provider for `options` or `attrs` would also cause those params to be injected (obviously this is not desirable behaviour as you typically want to let Backbone handle those).
-
 You can override any injectable parameter when you instantiate your objects. This can be useful in your tests.
 
-```javascript
+```js
 // Allow the dependency injection to take place, the provider is used
 new MyModel({ name: 'Yehuda' });
 

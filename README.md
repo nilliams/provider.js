@@ -68,7 +68,7 @@ var MyObject = Provider.Object.extend({
 });
 
 // The provider can use `options` to help make its mind up
-Provider.provider('$http', function(options) {
+Provider.provide('$http', function(options) {
   return ( options.foo ) ? $.foojax : $.ajax;
 });
 
